@@ -35,6 +35,14 @@ class Manipulations
     public const FIT_STRETCH = 'stretch';
     public const FIT_CROP = 'crop';
 
+    public const TRIM_BASE_TOP_LEFT = 'top-left';
+    public const TRIM_BASE_BOTTOM_RIGHT = 'bottom-right';
+    public const TRIM_BASE_TRANSPARENT = 'transparent';
+    public const TRIM_AWAY_TOP = 'top';
+    public const TRIM_AWAY_BOTTOM = 'bottom';
+    public const TRIM_AWAY_LEFT = 'left';
+    public const TRIM_AWAY_RIGHT = 'right';
+
     public const BORDER_OVERLAY = 'overlay';
     public const BORDER_SHRINK = 'shrink';
     public const BORDER_EXPAND = 'expand';
@@ -67,7 +75,7 @@ class Manipulations
 
     public function __construct(array $manipulations = [])
     {
-        if (! $this->hasMultipleConversions($manipulations)) {
+        if (!$this->hasMultipleConversions($manipulations)) {
             $manipulations = [$manipulations];
         }
 
@@ -86,7 +94,7 @@ class Manipulations
      */
     public function orientation(string $orientation): static
     {
-        if (! $this->validateManipulation($orientation, 'orientation')) {
+        if (!$this->validateManipulation($orientation, 'orientation')) {
             throw InvalidManipulation::invalidParameter(
                 'orientation',
                 $orientation,
@@ -102,7 +110,7 @@ class Manipulations
      */
     public function flip(string $orientation): static
     {
-        if (! $this->validateManipulation($orientation, 'flip')) {
+        if (!$this->validateManipulation($orientation, 'flip')) {
             throw InvalidManipulation::invalidParameter(
                 'flip',
                 $orientation,
@@ -118,7 +126,7 @@ class Manipulations
      */
     public function crop(string $cropMethod, int $width, int $height): static
     {
-        if (! $this->validateManipulation($cropMethod, 'crop')) {
+        if (!$this->validateManipulation($cropMethod, 'crop')) {
             throw InvalidManipulation::invalidParameter(
                 'cropmethod',
                 $cropMethod,
@@ -195,7 +203,7 @@ class Manipulations
      */
     public function fit(string $fitMethod, ?int $width = null, ?int $height = null): static
     {
-        if (! $this->validateManipulation($fitMethod, 'fit')) {
+        if (!$this->validateManipulation($fitMethod, 'fit')) {
             throw InvalidManipulation::invalidParameter(
                 'fit',
                 $fitMethod,
@@ -216,6 +224,22 @@ class Manipulations
         }
 
         return $this->addManipulation('fit', $fitMethod);
+    }
+
+    /**
+     * @throws InvalidManipulation
+     */
+    public function trim(string $trimBase = 'top-left', string|null $away = null, int $tolerance = 0, int $feather = 0): static
+    {
+        if (!$this->validateManipulation($trimBase, 'trim_base')) {
+            throw InvalidManipulation::invalidParameter(
+                'trimBase',
+                $trimBase,
+                $this->getValidManipulationOptions('trim_base')
+            );
+        }
+
+        return $this->addManipulation('trim', "{$trimBase},{$away},{$tolerance},{$feather}");
     }
 
     /**
@@ -346,7 +370,7 @@ class Manipulations
             throw InvalidManipulation::invalidWidth($width);
         }
 
-        if (! $this->validateManipulation($borderType, 'border')) {
+        if (!$this->validateManipulation($borderType, 'border')) {
             throw InvalidManipulation::invalidParameter(
                 'border',
                 $borderType,
@@ -374,7 +398,7 @@ class Manipulations
      */
     public function format(string $format): static
     {
-        if (! $this->validateManipulation($format, 'format')) {
+        if (!$this->validateManipulation($format, 'format')) {
             throw InvalidManipulation::invalidParameter(
                 'format',
                 $format,
@@ -390,7 +414,7 @@ class Manipulations
      */
     protected function filter(string $filterName): static
     {
-        if (! $this->validateManipulation($filterName, 'filter')) {
+        if (!$this->validateManipulation($filterName, 'filter')) {
             throw InvalidManipulation::invalidParameter(
                 'filter',
                 $filterName,
@@ -406,7 +430,7 @@ class Manipulations
      */
     public function watermark(string $filePath): static
     {
-        if (! file_exists($filePath)) {
+        if (!file_exists($filePath)) {
             throw new FileNotFoundException($filePath);
         }
 
@@ -421,7 +445,7 @@ class Manipulations
      */
     public function watermarkWidth(int $width, string $unit = 'px'): static
     {
-        $width = ($unit === static::UNIT_PERCENT ? $width.'w' : $width);
+        $width = ($unit === static::UNIT_PERCENT ? $width . 'w' : $width);
 
         return $this->addManipulation('watermarkWidth', (string)$width);
     }
@@ -432,7 +456,7 @@ class Manipulations
      */
     public function watermarkHeight(int $height, string $unit = 'px'): static
     {
-        $height = ($unit === static::UNIT_PERCENT ? $height.'h' : $height);
+        $height = ($unit === static::UNIT_PERCENT ? $height . 'h' : $height);
 
         return $this->addManipulation('watermarkHeight', (string)$height);
     }
@@ -444,7 +468,7 @@ class Manipulations
      */
     public function watermarkFit(string $fitMethod): static
     {
-        if (! $this->validateManipulation($fitMethod, 'fit')) {
+        if (!$this->validateManipulation($fitMethod, 'fit')) {
             throw InvalidManipulation::invalidParameter(
                 'watermarkFit',
                 $fitMethod,
@@ -464,8 +488,8 @@ class Manipulations
     {
         $yPadding = $yPadding ?? $xPadding;
 
-        $xPadding = ($unit === static::UNIT_PERCENT ? $xPadding.'w' : $xPadding);
-        $yPadding = ($unit === static::UNIT_PERCENT ? $yPadding.'h' : $yPadding);
+        $xPadding = ($unit === static::UNIT_PERCENT ? $xPadding . 'w' : $xPadding);
+        $yPadding = ($unit === static::UNIT_PERCENT ? $yPadding . 'h' : $yPadding);
 
         $this->addManipulation('watermarkPaddingX', (string)$xPadding);
         $this->addManipulation('watermarkPaddingY', (string)$yPadding);
@@ -478,7 +502,7 @@ class Manipulations
      */
     public function watermarkPosition(string $position): static
     {
-        if (! $this->validateManipulation($position, 'position')) {
+        if (!$this->validateManipulation($position, 'position')) {
             throw InvalidManipulation::invalidParameter(
                 'watermarkPosition',
                 $position,
@@ -548,7 +572,7 @@ class Manipulations
 
     public function hasManipulation(string $manipulationName): bool
     {
-        return ! is_null($this->getManipulationArgument($manipulationName));
+        return !is_null($this->getManipulationArgument($manipulationName));
     }
 
     public function getManipulationArgument(string $manipulationName)
