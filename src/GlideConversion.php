@@ -152,6 +152,7 @@ final class GlideConversion
             'width' => 'w',
             'height' => 'h',
             'blur' => 'blur',
+            'trim' => 'trim',
             'pixelate' => 'pixel',
             'crop' => 'fit',
             'manualCrop' => 'crop',
